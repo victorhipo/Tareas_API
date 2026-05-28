@@ -1,0 +1,14 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: tareasapi-sqlserver
+    ports:
+      - "1434:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "MyStrongPassForMyFirstAPI123_"
+      MSSQL_PID: "Developer"
+    volumes:
+      - sqlsever-data:/var/opt/mssql
+volumes:
+  sqlsever-data:
