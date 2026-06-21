@@ -1,4 +1,6 @@
-namespace Tareas
+using Tareas.Domain.Enum;
+
+namespace Tareas.Domain.Entities
 {
     public class Tarea
     {

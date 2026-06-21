@@ -1,6 +1,8 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Tareas.Api/Tareas.Api.csproj" />
+    <Project Path="src/Tareas.Application/Tareas.Application.csproj" />
     <Project Path="src/Tareas.Domain/Tareas.Domain.csproj" />
+    <Project Path="src/Tareas.Infrastructure/Tareas.Infrastructure.csproj" />
   </Folder>
 </Solution>

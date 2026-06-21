@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Tareas.Api.DTOs;
+using Tareas.Domain.Entities;
+using Tareas.Infrastructure.Persistence;
 
 namespace Tareas.Api.Controllers;
 

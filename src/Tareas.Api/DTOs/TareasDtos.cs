@@ -1,3 +1,4 @@
+using Tareas.Domain.Enum;
 using System.ComponentModel.DataAnnotations;
 
 namespace Tareas.Api.DTOs;

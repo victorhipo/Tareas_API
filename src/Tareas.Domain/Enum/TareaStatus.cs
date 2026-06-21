@@ -1,4 +1,4 @@
-namespace Tareas
+namespace Tareas.Domain.Enum
 {
     public enum TareaStatus
     {

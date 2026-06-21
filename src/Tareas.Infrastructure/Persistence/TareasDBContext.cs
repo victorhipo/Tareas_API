@@ -1,7 +1,7 @@
+using Tareas.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-
-namespace Tareas
+namespace Tareas.Infrastructure.Persistence
 {
     public class TareasDBContext: DbContext
     {
