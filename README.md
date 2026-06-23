@@ -10,23 +10,54 @@ API REST para gestión de tareas. Proyecto de aprendizaje y portfolio, construid
 
 ## Estado del proyecto
 
-**Level 1 — Minimal REST API** ✅
+**Level 2 — Clean Architecture** ✅
 
-CRUD completo de tareas sobre una arquitectura de dos proyectos (`Api` + `Domain`), con el dominio sin dependencias externas como base para los siguientes niveles.
+Arquitectura en cuatro capas con inversión de dependencias:
 
+- **Domain** — entidades del negocio, sin dependencias externas.
+- **Application** — casos de uso (handlers), interfaces (`ITareaRepository`), commands y DTOs internos.
+- **Infrastructure** — `DbContext`, repositorios, migraciones de EF Core.
+- **Api** — controllers HTTP delgados que traducen entre HTTP y casos de uso.
+
+La capa de Api desconoce los detalles de persistencia. Cambiar de SQL Server a otra BD solo requeriría tocar Infrastructure.
 ## Estructura
 ```
-Tareas.sln
-├── docker-compose.yml      # SQL Server 2022
+Tareas.slnx
+├── compose.yaml                          # SQL Server 2022
 └── src/
-├── Tareas.Api/             # Web API: controllers, EF Core, DI
-│   ├── Controllers/
-│   ├── Data/               # DbContext
-│   ├── DTOs/
-│   └── Migrations/
-└── Tareas.Domain/          # Entidades y enums (sin dependencias)
-├── Entities/
-└── Enums/
+    ├── Tareas.Domain/                    # Entidades y enums (sin dependencias)
+    │   ├── Entities/
+    │   │   └── Tarea.cs
+    │   └── Enums/
+    │       └── TareaStatus.cs
+    │
+    ├── Tareas.Application/               # Casos de uso, interfaces, DTOs internos
+    │   ├── DTOs/
+    │   │   └── TareaDto.cs
+    │   ├── Interfaces/
+    │   │   └── ITareaRepository.cs
+    │   ├── UseCases/
+    │   │   └── Tareas/
+    │   │       ├── CreateTarea/
+    │   │       ├── DeleteTarea/
+    │   │       ├── GetAllTareas/
+    │   │       ├── GetTareaById/
+    │   │       └── UpdateTarea/
+    │   └── DependencyInjection.cs
+    │
+    ├── Tareas.Infrastructure/            # EF Core, repositorios, persistencia
+    │   ├── Migrations/
+    │   ├── Persistence/
+    │   │   ├── TareasDbContext.cs
+    │   │   └── TareaRepository.cs
+    │   └── DependencyInjection.cs
+    │
+    └── Tareas.Api/                       # Controllers y composición
+        ├── Controllers/
+        │   └── TareasController.cs
+        ├── DTOs/
+        │   └── TareaDtos.cs
+        └── Program.cs
 ```
 ## Puesta en marcha
 
@@ -89,8 +120,8 @@ La API queda escuchando en la URL que indique la consola (p. ej. `http://localho
 ## Roadmap
 
 - **Level 1** — Minimal REST API ✅
-- **Level 2** — Clean Architecture (Application + Infrastructure)
-- **Level 3** — CQRS
+- **Level 2** — Clean Architecture (Application + Infrastructure) ✅
+- **Level 3** — CQRS con MediatR
 - **Level 4** — Event-driven
 - **Level 5** — Extensiones (IA y arquitectura avanzada) *(opcional)*
 
