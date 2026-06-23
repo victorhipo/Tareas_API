@@ -1,5 +1,5 @@
 using Tareas.Application.Interaces;
-using Tareas.Application.UseCases.UpdateTarea;
+
 
 namespace Tareas.Application.UseCases.Tareas.UpdateTarea;
 
@@ -23,7 +23,7 @@ public class UpdateTareaHandler
         tarea.DueDate = command.DueDate;
         tarea.Status = command.Status;
 
-        await _repository.AddAsync(tarea, ct);
+        await _repository.UpdateAsync(tarea, ct);
 
         return true;
     }

@@ -1,6 +1,6 @@
 using Tareas.Domain.Enum;
 
-namespace Tareas.Application.UseCases.UpdateTarea;
+namespace Tareas.Application.UseCases.Tareas.UpdateTarea;
 
 public record UpdateTareaCommand(
     Guid Id,

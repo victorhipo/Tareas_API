@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Tareas.Api.DTOs;
-using Tareas.Domain.Entities;
-using Tareas.Infrastructure.Persistence;
+using Tareas.Application.UseCases.Tareas.GetAllTareas;
+using Tareas.Application.UseCases.Tareas.GetTareaById;
+using Tareas.Application.UseCases.Tareas.CreateTarea;
+using Tareas.Application.UseCases.Tareas.UpdateTarea;
+using Tareas.Application.UseCases.Tareas.DeleteTarea;
+
 
 namespace Tareas.Api.Controllers;
 
@@ -10,67 +13,72 @@ namespace Tareas.Api.Controllers;
 [Route("api/[controller]")]
 public class TareasController: ControllerBase
 {
-    private readonly TareasDBContext _db;
-    public TareasController(TareasDBContext db)
+    private readonly GetAllTareasHandler _getAllHandler;
+    private readonly GetTareaByIdHandler _getByIdHandler;
+    private readonly CreateTareaHandler _createHandler;
+    private readonly UpdateTareaHandler _updateHandler;
+    private readonly DeleteTareaHandler _deleteHandler;
+
+    public TareasController(GetAllTareasHandler getAllHandler, GetTareaByIdHandler getByIdHandler, CreateTareaHandler createHandler, UpdateTareaHandler updateHandler, DeleteTareaHandler deleteHandler)
     {
-        _db = db;
+        _createHandler = createHandler;
+        _updateHandler = updateHandler;
+        _deleteHandler = deleteHandler;
+        _getAllHandler = getAllHandler;
+        _getByIdHandler = getByIdHandler;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TareaResponse>>> GetAll( CancellationToken ct)
     {
-        var tareas = await _db.Tareas.AsNoTracking().OrderByDescending(t => t.CreatedAt).Select(t => new TareaResponse(t.Id,t.Title, t.Description, t.DueDate, t.Status, t.CreatedAt)).ToListAsync(ct);
-        return Ok(tareas);
+        var tareas = await _getAllHandler.HandleAsync(ct);
+        var response = tareas.Select( t => new TareaResponse(t.Id, t.Title, t.Description, t.DueDate, t.Status, t.CreatedAt));
+
+        return Ok(response);
     }
     
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<TareaResponse>> GetTareaById(Guid id, CancellationToken ct)
+    public async Task<ActionResult<TareaResponse>> GetById(Guid id, CancellationToken ct)
     {
-        var t = await _db.Tareas.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id,ct);
-        if(t is null) return NotFound();
+        var tarea = await _getByIdHandler.HandleAsync(id, ct);
+        
+        if(tarea is null) return NotFound();
 
-        return Ok(new TareaResponse(t.Id,t.Title, t.Description, t.DueDate, t.Status, t.CreatedAt));
+        return Ok(new TareaResponse(tarea.Id,tarea.Title, tarea.Description, tarea.DueDate, tarea.Status, tarea.CreatedAt));
     }
 
     [HttpPost]
-    public async Task<ActionResult<TareaResponse>> CreateTarea([FromBody]CreateTareaRequest request, CancellationToken ct)
+    public async Task<ActionResult<TareaResponse>> Create([FromBody]CreateTareaRequest request, CancellationToken ct)
     {
-        var tarea = new Tarea
-        {
-            Id = Guid.NewGuid(),
-            Title = request.Title,
-            Description = request.Description,
-            DueDate = request.DueDate,
-            CreatedAt = DateTime.UtcNow
-        };
-        _db.Tareas.Add(tarea);
-        await _db.SaveChangesAsync(ct);
+        var command = new CreateTareaCommand(request.Title, request.Description, request.DueDate);
+        
+        var tarea = await _createHandler.HandleAsync(command, ct);
 
         var response = new TareaResponse(tarea.Id, tarea.Title, tarea.Description, tarea.DueDate, tarea.Status, tarea.CreatedAt);
-        return CreatedAtAction(nameof(GetTareaById), new {id = tarea.Id}, response);
+
+        return CreatedAtAction(nameof(GetById), new{id = tarea.Id}, response);
     }
+
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<TareaResponse>> UpdateTarea(Guid id, [FromBody]UpdateTareaRequest request, CancellationToken ct)
+    public async Task<IActionResult> UpdateTarea(Guid id, [FromBody]UpdateTareaRequest request, CancellationToken ct)
     {
-        var tarea = await _db.Tareas.FirstOrDefaultAsync(x => x.Id == id,ct);
-        if(tarea is null) return NotFound();
+        var command = new UpdateTareaCommand(id, request.Title, request.Description, request.DueDate, request.Status);
 
-        tarea.Title = request.Title;
-        tarea.Description = request.Description;
-        tarea.DueDate = request.DueDate;
-        tarea.Status = request.Status;
+        var found = await _updateHandler.HandleAsync(command, ct);
 
-        await _db.SaveChangesAsync(ct);
+        if(!found) return NotFound();
+
         return NoContent();
     }
-    [HttpDelete("{id:guid}")]
-    public async Task<ActionResult<TareaResponse>> DeleteTarea(Guid id, CancellationToken ct)
-    {
-        var tarea = await _db.Tareas.FirstOrDefaultAsync(x => x.Id == id,ct);
-        if(tarea is null) return NotFound();
 
-        _db.Remove(tarea);
-        await _db.SaveChangesAsync(ct);
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteTarea(Guid id, CancellationToken ct)
+    {
+        var found = await _deleteHandler.HandleAsync(id, ct);
+
+        if(!found) return NotFound();
+
         return NoContent();
+
     }
 }
