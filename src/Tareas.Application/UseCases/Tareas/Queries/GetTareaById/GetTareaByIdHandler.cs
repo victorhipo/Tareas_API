@@ -1,9 +1,10 @@
 using Tareas.Application.DTOs;
 using Tareas.Application.Interaces;
+using MediatR;
 
-namespace Tareas.Application.UseCases.Tareas.GetTareaById;
+namespace Tareas.Application.UseCases.Tareas.Queries.GetTareaById;
 
-public class GetTareaByIdHandler
+public class GetTareaByIdHandler : IRequestHandler<GetTareaByIdQuery, TareaDto?>
 {
     private readonly ITareaRepository _repository;
 
@@ -12,9 +13,9 @@ public class GetTareaByIdHandler
         _repository = repository;
     }
 
-    public async Task<TareaDto?> HandleAsync(Guid id, CancellationToken ct)
+    public async Task<TareaDto?> Handle(GetTareaByIdQuery request, CancellationToken ct)
     {
-        var tarea = await _repository.GetByIdAsync(id, ct);
+        var tarea = await _repository.GetByIdAsync(request.Id, ct);
 
         if( tarea is null ) return null;
 

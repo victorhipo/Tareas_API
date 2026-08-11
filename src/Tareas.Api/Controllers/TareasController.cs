@@ -1,10 +1,11 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Tareas.Api.DTOs;
-using Tareas.Application.UseCases.Tareas.GetAllTareas;
-using Tareas.Application.UseCases.Tareas.GetTareaById;
-using Tareas.Application.UseCases.Tareas.CreateTarea;
-using Tareas.Application.UseCases.Tareas.UpdateTarea;
-using Tareas.Application.UseCases.Tareas.DeleteTarea;
+using Tareas.Application.UseCases.Tareas.Queries.GetAllTareas;
+using Tareas.Application.UseCases.Tareas.Queries.GetTareaById;
+using Tareas.Application.UseCases.Tareas.Commands.CreateTarea;
+using Tareas.Application.UseCases.Tareas.Commands.UpdateTarea;
+using Tareas.Application.UseCases.Tareas.Commands.DeleteTarea;
 
 
 namespace Tareas.Api.Controllers;
@@ -13,25 +14,17 @@ namespace Tareas.Api.Controllers;
 [Route("api/[controller]")]
 public class TareasController: ControllerBase
 {
-    private readonly GetAllTareasHandler _getAllHandler;
-    private readonly GetTareaByIdHandler _getByIdHandler;
-    private readonly CreateTareaHandler _createHandler;
-    private readonly UpdateTareaHandler _updateHandler;
-    private readonly DeleteTareaHandler _deleteHandler;
+    private readonly IMediator _mediator;
 
-    public TareasController(GetAllTareasHandler getAllHandler, GetTareaByIdHandler getByIdHandler, CreateTareaHandler createHandler, UpdateTareaHandler updateHandler, DeleteTareaHandler deleteHandler)
+    public TareasController(IMediator mediator)
     {
-        _createHandler = createHandler;
-        _updateHandler = updateHandler;
-        _deleteHandler = deleteHandler;
-        _getAllHandler = getAllHandler;
-        _getByIdHandler = getByIdHandler;
+        _mediator = mediator;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TareaResponse>>> GetAll( CancellationToken ct)
     {
-        var tareas = await _getAllHandler.HandleAsync(ct);
+        var tareas = await _mediator.Send(new GetAllTareasQuery(), ct);
         var response = tareas.Select( t => new TareaResponse(t.Id, t.Title, t.Description, t.DueDate, t.Status, t.CreatedAt));
 
         return Ok(response);
@@ -40,7 +33,7 @@ public class TareasController: ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<TareaResponse>> GetById(Guid id, CancellationToken ct)
     {
-        var tarea = await _getByIdHandler.HandleAsync(id, ct);
+        var tarea = await _mediator.Send( new GetTareaByIdQuery(id), ct);
         
         if(tarea is null) return NotFound();
 
@@ -52,7 +45,7 @@ public class TareasController: ControllerBase
     {
         var command = new CreateTareaCommand(request.Title, request.Description, request.DueDate);
         
-        var tarea = await _createHandler.HandleAsync(command, ct);
+        var tarea = await _mediator.Send(command, ct);
 
         var response = new TareaResponse(tarea.Id, tarea.Title, tarea.Description, tarea.DueDate, tarea.Status, tarea.CreatedAt);
 
@@ -64,7 +57,7 @@ public class TareasController: ControllerBase
     {
         var command = new UpdateTareaCommand(id, request.Title, request.Description, request.DueDate, request.Status);
 
-        var found = await _updateHandler.HandleAsync(command, ct);
+        var found = await _mediator.Send(command, ct);
 
         if(!found) return NotFound();
 
@@ -74,7 +67,9 @@ public class TareasController: ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteTarea(Guid id, CancellationToken ct)
     {
-        var found = await _deleteHandler.HandleAsync(id, ct);
+        var command = new DeleteTareaCommand(id);
+        
+        var found = await _mediator.Send(command, ct);
 
         if(!found) return NotFound();
 

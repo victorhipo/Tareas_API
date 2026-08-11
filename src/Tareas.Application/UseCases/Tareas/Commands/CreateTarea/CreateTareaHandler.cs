@@ -1,10 +1,11 @@
 using Tareas.Application.DTOs;
 using Tareas.Application.Interaces;
 using Tareas.Domain.Entities;
+using MediatR;
 
-namespace Tareas.Application.UseCases.Tareas.CreateTarea;
+namespace Tareas.Application.UseCases.Tareas.Commands.CreateTarea;
 
-public class CreateTareaHandler
+public class CreateTareaHandler : IRequestHandler<CreateTareaCommand, TareaDto>
 {
     private readonly ITareaRepository _repository;
 
@@ -13,14 +14,14 @@ public class CreateTareaHandler
         _repository = repository;
     }
 
-    public async Task<TareaDto> HandleAsync( CreateTareaCommand command, CancellationToken ct)
+    public async Task<TareaDto> Handle( CreateTareaCommand request, CancellationToken ct)
     {
         var tarea = new Tarea
         {
             Id = Guid.NewGuid(),  
-            Title = command.Title,
-            Description = command.Description,
-            DueDate = command.DueDate,
+            Title = request.Title,
+            Description = request.Description,
+            DueDate = request.DueDate,
             CreatedAt = DateTime.UtcNow
         };
 

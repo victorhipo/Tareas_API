@@ -1,6 +1,7 @@
 using Tareas.Domain.Enum;
+using MediatR;
 
-namespace Tareas.Application.UseCases.Tareas.UpdateTarea;
+namespace Tareas.Application.UseCases.Tareas.Commands.UpdateTarea;
 
 public record UpdateTareaCommand(
     Guid Id,
@@ -8,4 +9,4 @@ public record UpdateTareaCommand(
     string? Description,
     DateTime? DueDate,
     TareaStatus Status
-);
+) : IRequest<bool>;

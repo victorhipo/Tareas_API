@@ -1,9 +1,11 @@
 using Tareas.Application.DTOs;
 using Tareas.Application.Interaces;
+using MediatR;
 
-namespace Tareas.Application.UseCases.Tareas.GetAllTareas;
 
-public class GetAllTareasHandler
+namespace Tareas.Application.UseCases.Tareas.Queries.GetAllTareas;
+
+public class GetAllTareasHandler : IRequestHandler<GetAllTareasQuery, IReadOnlyList<TareaDto>>
 {
     private readonly ITareaRepository _repository;
 
@@ -12,7 +14,7 @@ public class GetAllTareasHandler
         _repository = repository;
     }
 
-    public async Task<IReadOnlyList<TareaDto>> HandleAsync(CancellationToken ct)
+    public async Task<IReadOnlyList<TareaDto>> Handle(GetAllTareasQuery request, CancellationToken ct)
     {
         var tareas = await _repository.GetAllAsync(ct);
 

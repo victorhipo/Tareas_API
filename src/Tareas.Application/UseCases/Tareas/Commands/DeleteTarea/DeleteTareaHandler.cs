@@ -1,8 +1,9 @@
+using MediatR;
 using Tareas.Application.Interaces;
 
-namespace Tareas.Application.UseCases.Tareas.DeleteTarea;
+namespace Tareas.Application.UseCases.Tareas.Commands.DeleteTarea;
 
-public class DeleteTareaHandler
+public class DeleteTareaHandler : IRequestHandler<DeleteTareaCommand, bool>
 {
     private readonly ITareaRepository _repository;
 
@@ -11,9 +12,9 @@ public class DeleteTareaHandler
         _repository = repository;
     }
 
-    public async Task<bool> HandleAsync( Guid id, CancellationToken ct)
+    public async Task<bool> Handle( DeleteTareaCommand request, CancellationToken ct)
     {
-        var tarea = await _repository.GetByIdAsync( id, ct );
+        var tarea = await _repository.GetByIdAsync( request.Id, ct );
 
         if( tarea is null) return false;
 
