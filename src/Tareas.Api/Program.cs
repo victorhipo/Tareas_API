@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Tareas.Infrastructure;
 using Tareas.Infrastructure.Persistence;
 using Tareas.Application;
+using Tareas.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,8 @@ builder.Services.AddInfraestructure(builder.Configuration);
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+app.UseMiddleware<ValidationExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
