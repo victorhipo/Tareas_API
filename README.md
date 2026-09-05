@@ -10,16 +10,10 @@ API REST para gestión de tareas. Proyecto de aprendizaje y portfolio, construid
 
 ## Estado del proyecto
 
-**Level 2 — Clean Architecture** ✅
+**Level 3 — CQRS con MediatR** ✅
 
-Arquitectura en cuatro capas con inversión de dependencias:
+Casos de uso separados en Commands y Queries, despachados vía `IMediator`. Pipeline de behaviors transversales: validación con FluentValidation y logging con `Stopwatch`. Middleware que traduce errores de validación a respuestas 400 con estructura clara.
 
-- **Domain** — entidades del negocio, sin dependencias externas.
-- **Application** — casos de uso (handlers), interfaces (`ITareaRepository`), commands y DTOs internos.
-- **Infrastructure** — `DbContext`, repositorios, migraciones de EF Core.
-- **Api** — controllers HTTP delgados que traducen entre HTTP y casos de uso.
-
-La capa de Api desconoce los detalles de persistencia. Cambiar de SQL Server a otra BD solo requeriría tocar Infrastructure.
 ## Estructura
 ```
 Tareas.slnx
@@ -121,10 +115,10 @@ La API queda escuchando en la URL que indique la consola (p. ej. `http://localho
 
 - **Level 1** — Minimal REST API ✅
 - **Level 2** — Clean Architecture (Application + Infrastructure) ✅
-- **Level 3** — CQRS con MediatR
+- **Level 3** — CQRS con MediatR ✅
 - **Level 4** — Event-driven
 - **Level 5** — Extensiones (IA y arquitectura avanzada) *(opcional)*
-
+  
 ## Notas
 
 - La app móvil (Flutter) vive en un repositorio separado.
