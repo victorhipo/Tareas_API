@@ -10,9 +10,9 @@ API REST para gestión de tareas. Proyecto de aprendizaje y portfolio, construid
 
 ## Estado del proyecto
 
-**Level 3 — CQRS con MediatR** ✅
+**Level 4 — Event-driven (in-process)** ✅
 
-Casos de uso separados en Commands y Queries, despachados vía `IMediator`. Pipeline de behaviors transversales: validación con FluentValidation y logging con `Stopwatch`. Middleware que traduce errores de validación a respuestas 400 con estructura clara.
+Eventos de dominio publicados desde los handlers de Commands vía MediatR notifications. La entidad `Tarea` acumula sus propios eventos; los handlers los publican tras persistir. Handlers de eventos (`INotificationHandler`) reaccionan de forma desacoplada — el que publica no sabe quién escucha.
 
 ## Estructura
 ```
@@ -116,8 +116,8 @@ La API queda escuchando en la URL que indique la consola (p. ej. `http://localho
 - **Level 1** — Minimal REST API ✅
 - **Level 2** — Clean Architecture (Application + Infrastructure) ✅
 - **Level 3** — CQRS con MediatR ✅
-- **Level 4** — Event-driven
-- **Level 5** — Extensiones (IA y arquitectura avanzada) *(opcional)*
+- **Level 4** — Event-driven (eventos de dominio in-process) ✅
+- **Level 5** — Extensiones (tests, CI/CD, deploy, features de la app) *(opcional, en paralelo con la app móvil)*
   
 ## Notas
 
